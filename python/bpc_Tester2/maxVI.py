@@ -55,14 +55,14 @@ except socket.error:
 
 rm = pyvisa.ResourceManager()
 #print(rm.list_resources() )
-inst = rm.open_resource('USB0::1689::851::2347672::0::INSTR')
-#inst = rm.open_resource('USB0::1689::851::2347693::0::INSTR')
+#inst = rm.open_resource('USB0::1689::851::2347672::0::INSTR')
+inst = rm.open_resource('USB0::1689::851::2347693::0::INSTR')
 #print(inst.query("*IDN?"))
 
 
 #AFG1022
 #print("Measuring max V and I...")
-#print("Configuring instruments...")
+
 inst.write('SOUR1:FUNC:SHAP DC')
 inst.write('SOUR2:FUNC:SHAP DC')
 if state == 'off' or state == 'OFF':
@@ -96,6 +96,7 @@ if oscope == 'Sig':
 		rdg = s.recv(100) # clear serial buffer
 	except:
 		pass
+	print("Configuring instruments...")
 	sds_send(s, b'C1:TRA ON\n')
 	sds_send(s, b'C2:TRA OFF\n')
 	sds_send(s, b'C3:TRA OFF\n')
@@ -107,3 +108,4 @@ if oscope == 'Sig':
 	sds_send(s, b'C1:ATTN 10\n')
 	sds_send(s, b'C1:CPL D1M\n')
 
+s.close()

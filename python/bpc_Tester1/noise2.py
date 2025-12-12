@@ -185,7 +185,7 @@ except socket.error:
 	
 try:
 	print("Measuring common mode noise...")
-	print("Configuring instruments...")
+	
 	#AFG1022
 	inst.write('SOUR1:FUNC:SHAP DC')
 	inst.write('SOUR1:VOLT:LEV:IMM:OFFS 0.8') # 5 A into 0.5 ohm load
@@ -232,6 +232,7 @@ try:
 			rdg = s.recv(100) # clear serial buffer
 		except:
 			pass
+		print("Configuring instruments...")
 		sds_send(s, b'C1:TRA ON\n') #Trace on/off
 		sds_send(s, b'C2:TRA OFF\n')
 		sds_send(s, b'C3:TRA OFF\n')
