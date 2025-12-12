@@ -1,0 +1,32 @@
+UDP Housekeeping Data for LT-EL-SR-PS-CRR-6401 S/N 0003
+
+Full power data for CH1
+
+ 1.   1000.0
+ 2.      9.9     9.9     0.0     0.0     0.0     0.0
+ 8.      0.0     0.0     0.0     0.0     0.0     0.0
+14.      0.0     0.0     0.0     0.0     0.0
+19.     24.0     8.4     0.0     0.0     0.0     0.0     0.0     0.1
+27.      0.0     0.0     0.0     0.0     0.0     0.0     0.0     0.0     0.0
+36.     30.0     0.0     0.0  9230.0     0.0     0.0     0.0     0.0     0.0
+45.     25.7    24.9     0.0     0.0     0.0     0.0     0.0     0.0
+53. 	0b1	0x00000
+55.     6401003   250217.0     535.0   13205.0    4109.0
+60.     1001.0
+
+
+1: UDP housekeeping packet frame start
+2-13: H-bridge Hall current sensors
+19-34: Delta power supplies V, I, V, I ...
+36-38: Delta power supplies temperature
+39-44: Delta power supplies fan speed
+45-47: Heatsink temperatures
+49-51: Heatsink fan % PWM control
+53: Delta power supplies module on/off status
+54: Power converter fault status
+55: Power converter Model.Serial Number
+56: Controller firmware version
+57: Controller firmware loop rate (loops/s)
+58: UDP packet counter
+59: Controller uptime since reset (s)
+60: UDP housekeeping packet frame end
