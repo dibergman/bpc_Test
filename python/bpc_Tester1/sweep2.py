@@ -12,7 +12,7 @@ import pyvisa
 
 def sds_send(sock, scpi_cmd):
     sock.sendall(scpi_cmd)
-    time.sleep(0.6)
+    time.sleep(0.7)
     
 
 oscope = 'Sig'

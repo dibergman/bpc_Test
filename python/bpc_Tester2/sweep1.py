@@ -12,7 +12,7 @@ import pyvisa
 def sds_send(sock, scpi_cmd):
     sock.sendall(scpi_cmd)
     #print(scpi_cmd)
-    time.sleep(0.5)
+    time.sleep(0.7)
     
 
 F=14
