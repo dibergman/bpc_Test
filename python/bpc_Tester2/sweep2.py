@@ -12,7 +12,7 @@ import pyvisa
 
 def sds_send(sock, scpi_cmd):
     sock.sendall(scpi_cmd)
-    time.sleep(0.6)
+    time.sleep(0.5)
     
 
 oscope = 'Sig'
@@ -124,9 +124,7 @@ try:
 		sds_send(s, b'C4:CPL D1M\n')
 		sds_send(s, b'C4:OFST -10\n')
 		#sds_send(s, b'CH4:POS -4\n')
-		sds_send(s, b'C1:BWL ON\n')
-		sds_send(s, b'C2:BWL ON\n')
-		sds_send(s, b'C4:BWL ON\n')
+		sds_send(s, b'BWL C1,ON,C2,ON,C4,ON\n')
 			
 	#wait 10 s then turn function generator outputs off
 	clk = time.time()

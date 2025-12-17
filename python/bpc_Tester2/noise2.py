@@ -248,7 +248,7 @@ try:
 		sds_send(s, b'C1:VDIV 0.05\n')            # Volts/div
 		sds_send(s, b'C1:CPL A1M\n')               # Coupling AC 1MOhm
 		sds_send(s, b'C1:OFST 0\n')                # Offset in volts
-		sds_send(s, b'C1:BWL ON\n')               # Bandwidth limit: 20 MHz
+		sds_send(s, b'BWL C1,ON\n')               # Bandwidth limit: 20 MHz
 		
 	
 	

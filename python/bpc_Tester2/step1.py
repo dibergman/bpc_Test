@@ -279,8 +279,8 @@ try:
 		sds_send(s, b'C4:CPL D1M\n')
 		sds_send(s, b'C4:OFST -1.5\n')
 		#sds_send(s, b'CH4:POS -4\n')
-		sds_send(s, b'C1:BWL ON\n')
-		sds_send(s, b'C4:BWL ON\n')
+		sds_send(s, b'BWL C1,ON,C4,ON\n')
+	
 		
 		sds_send(s, b'PACU:RISE,C1\n')
 	
