@@ -22,7 +22,7 @@ def sds_send(sock, scpi_cmd):
 	#	if x==b'1\n':
 	#		break
 	#print()
-	time.sleep(0.3)
+	time.sleep(0.7)
     
 
 #oscope = "Tek"

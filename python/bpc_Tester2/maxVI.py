@@ -20,7 +20,7 @@ def sds_send(sock, scpi_cmd):
 	#	if x==b'1\n':
 	#		break
 	#print()
-	time.sleep(0.3)
+	time.sleep(0.7)
     
 
 F=14
@@ -102,10 +102,10 @@ if oscope == 'Sig':
 	sds_send(s, b'C3:TRA OFF\n')
 	sds_send(s, b'C4:TRA ON\n')
 	#set Siglent scope trigger
-	sds_send(s, b'C4:TRLV 1.0\n')          # Trigger level
+	sds_send(s, b'C1:ATTN 10\n')
+	sds_send(s, b'C4:TRLV 0.1\n')          # Trigger level. Divid by atten factor
 	sds_send(s, b'TRMD AUTO\n')            # Auto trigger mode
 	sds_send(s, b'C1:VDIV 10\n')
-	sds_send(s, b'C1:ATTN 10\n')
 	sds_send(s, b'C1:CPL D1M\n')
 
 s.close()

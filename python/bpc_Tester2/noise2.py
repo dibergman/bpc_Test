@@ -22,7 +22,7 @@ def sds_send(sock, scpi_cmd):
 	#	if x==b'1\n':
 	#		break
 	#print()
-	time.sleep(0.3)
+	time.sleep(0.7)
     
 
 
@@ -244,11 +244,12 @@ try:
 		sds_send(s, b'TDIV 4e-4\n')                 # Time/div in seconds
 		sds_send(s, b'MSIZ 140K\n')                # Memory depth (record length)
 		
+		sds_send(s, b'C1:ATTN 10\n')
 		sds_send(s, b'C1:VDIV 0.05\n')            # Volts/div
 		sds_send(s, b'C1:CPL A1M\n')               # Coupling AC 1MOhm
 		sds_send(s, b'C1:OFST 0\n')                # Offset in volts
 		sds_send(s, b'C1:BWL ON\n')               # Bandwidth limit: 20 MHz
-		sds_send(s, b'C1:ATTN 10\n')
+		
 	
 	
 	print("Acquiring data...")

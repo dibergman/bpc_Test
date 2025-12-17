@@ -22,7 +22,7 @@ def sds_send(sock, scpi_cmd):
 	#	if x==b'1\n':
 	#		break
 	#print()
-	time.sleep(0.5)
+	time.sleep(0.7)
 
 #oscope = "Tek"
 oscope = "Sig"
@@ -255,7 +255,7 @@ try:
 		sds_send(s, b'C3:TRA OFF\n')
 		sds_send(s, b'C4:TRA ON\n')
 		#set Siglent scope trigger
-		sds_send(s, b'C4:TRLV 1.0\n')          # Trigger level
+		sds_send(s, b'C4:TRLV 1.0\n')          # Trigger level. Divide by atten factor
 		sds_send(s, b'TRMD NORM\n')            # Auto trigger mode
 		sds_send(s, b'C4:TRSL POS\n')
 				
@@ -269,13 +269,13 @@ try:
 			sds_send(s, b'TRDL -2e-4\n')
 		
 		#set Siglent scope vertical scale
-		sds_send(s, b'C1:VDIV 1\n')
 		sds_send(s, b'C1:ATTN 10\n')
+		sds_send(s, b'C1:VDIV 1\n')
 		sds_send(s, b'C1:CPL D1M\n')
 		sds_send(s, b'C1:OFST -0.5\n')
 		#sds_send(s, b'CH1:POS -4\n') #position is in divisions
-		sds_send(s, b'C4:VDIV 0.5\n')
 		sds_send(s, b'C4:ATTN 1\n')
+		sds_send(s, b'C4:VDIV 0.5\n')
 		sds_send(s, b'C4:CPL D1M\n')
 		sds_send(s, b'C4:OFST -1.5\n')
 		#sds_send(s, b'CH4:POS -4\n')
