@@ -100,42 +100,25 @@ try:
 			pass
 		print("Configuring instruments...")
 		
-		#set Siglent scope trigger
+		#Trigger commands
 		sds_send(s, b'TRMD AUTO\n')            # Auto trigger mode
 		sds_send(s, b'C1:TRLV 0.3\n')          # Trigger level. Need to divide desired levle by atten factor
-			
-		sds_send(s, b'C1:TRA ON\n')
-		sds_send(s, b'C2:TRA ON\n')
-		sds_send(s, b'C3:TRA OFF\n')
-		sds_send(s, b'C4:TRA ON\n')
-					
-		#set Siglent scope horizontal scale
+		
+        #Aquire
 		sds_send(s, b'MSIZ 14K\n')                # Memory depth (record length)
-		sds_send(s, b'TDIV 500e-9\n')                 # Time/div in seconds
-		sds_send(s, b'TRDL 0\n')
 		
-		#set Siglent scope vertical scale
-		sds_send(s, b'C1:ATTN 10\n')
-		sds_send(s, b'C2:ATTN 10\n')
-		sds_send(s, b'C4:ATTN 1\n')
+        #Timebase
+        sds_send(s, b'TDIV 500e-9; TRDL 0\n')                 # Time/div in seconds
 		
-		sds_send(s, b'C1:VDIV 5\n')
-		sds_send(s, b'C2:VDIV 5\n')
-		sds_send(s, b'C4:VDIV 5\n')
-		
-		sds_send(s, b'C2:CPL D1M\n')
-		sds_send(s, b'C1:CPL D1M\n')
-		sds_send(s, b'C4:CPL D1M\n')
-		
+		#Channel commands        
+		sds_send(s, b'C1:TRA ON; C2:TRA ON; C3:TRA OFF; C4:TRA ON\n')
+		sds_send(s, b'C1:ATTN 10; C2:ATTN 10;C4:ATTN 1\n')
+		sds_send(s, b'C1:VDIV 5; C2:VDIV 5; C4:VDIV 5\n')
+		sds_send(s, b'C2:CPL D1M; C1:CPL D1M; C4:CPL D1M\n')
 		sds_send(s, b'BWL C1,ON,C2,ON,C4,ON\n')
-
-		
-		sds_send(s, b'C1:OFST 0\n')
-		sds_send(s, b'C2:OFST 0\n')
+		sds_send(s, b'C1:OFST 0; C2:OFST 0; C4:OFST -10\n')
 		#sds_send(s, b'CH1:POS -4\n') #position is in divisions
-		sds_send(s, b'C4:OFST -10\n')
 		#sds_send(s, b'CH4:POS -4\n')
-		
 		
 		
 		
