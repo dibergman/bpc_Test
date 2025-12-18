@@ -51,7 +51,7 @@ except socket.error:
 
 inst.write('SOUR1:FUNC:SHAP RAMP')
 inst.write('SOUR1:VOLT:LEV:IMM:OFFS 0')
-inst.write('SOUR1:VOLT:LEV:IMM:AMPL 2')
+inst.write('SOUR1:VOLT:LEV:IMM:AMPL 4')
 inst.write('SOUR1:FREQ:FIX 0.125')
 inst.write('OUTP1:STAT ON')
 #print(inst.query('OUTP2:STAT?'))
