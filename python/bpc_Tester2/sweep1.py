@@ -12,7 +12,7 @@ import pyvisa
 
 def sds_send(sock, scpi_cmd):
     sock.sendall(scpi_cmd)
-    time.sleep(0.7)
+    time.sleep(0.01)
     
 
 oscope = 'Sig'
@@ -91,11 +91,12 @@ try:
 			except:
 				pass
 				#print(rdg)
-		try:		
-			rdg = s.recv(100) # clear serial buffer
-		except:
-			pass
+		#try:		
+		#	rdg = s.recv(100) # clear serial buffer
+		#except:
+		#	pass
 		print("Configuring instruments...")
+		time.sleep(3)
 		sds_send(s, b'C1:TRA ON\n')
 		sds_send(s, b'C2:TRA ON\n')
 		sds_send(s, b'C3:TRA OFF\n')
