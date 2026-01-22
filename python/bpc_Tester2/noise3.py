@@ -104,7 +104,6 @@ def get_SIGLENT_wfm(CH):
     # Receive header
     header1 = s.recv(5)
     header = s.recv(2)
-    print("header = %s" % header1)
     print("header = %s" % header)
     if header != b'#9':
     #if header != b'C2':

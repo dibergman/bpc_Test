@@ -1,4 +1,4 @@
-#Wideband normal mode noise
+#Low frequency noise - band limit 10 kHz
 import socket 
 import sys
 import time
@@ -13,17 +13,9 @@ import os
 
 def sds_send(sock, scpi_cmd):
 	sock.sendall(scpi_cmd)
-	#now = time.time()
-	#while (time.time()-now)<1:
-	#	sock.sendall(b'*OPC\n')
-	#	sock.sendall(b'*OPC?\n')
-	#	x=sock.recv(1000)
-	#	print(x)
-	#	if x==b'1\n':
-	#		break
-	#print()
-	time.sleep(0.7)
-    
+	print(scpi_cmd)
+	time.sleep(0.15)
+	    
 
 #oscope = "Tek"
 oscope = "Sig"
@@ -34,7 +26,7 @@ serial = sys.argv[2]
 chan = sys.argv[3]
 
 modelname = "%s_%s" % (model,serial)
-filename = "%s_%s_CH%s_dm_noise.png" %(model, serial, chan)
+filename = "%s_%s_CH%s_lf_noise.png" %(model, serial, chan)
 #filepath = './2ch/' + modelname + '/'
 filepath = "./_temp/"
 
@@ -49,8 +41,9 @@ def get_MSO4054_wfm(CH):
 	s.send(b'DATa:STARt 0\n')
 	s.send(b'DATa:STOP 100000\n')
 	s.send(b'CURV?\n')
-	#time.sleep(2)
+	#time.sleep(0.3)
 	#data = s.recv(20100)
+	#data = s.recv(200200)
 	z = bytearray()
 	while len(z) < 100000:
 		data = s.recv(1000)
@@ -58,20 +51,19 @@ def get_MSO4054_wfm(CH):
 	#print(len(z))
 	#print(data[0:20])
 	#print(len(data))
-	#wfm = np.asarray(struct.unpack('9900h', data[0+100:19800+100]))
-	#wfm = np.asarray(struct.unpack('10000h', z[6:20006]))
-	#wfm = np.asarray(struct.unpack('100000h', z[8:200008]))
+	#wfm = np.asarray(struct.unpack('9900H', data[0+100:19800+100]))
+	#wfm = np.asarray(struct.unpack('99000H', data[0+100:198000+100]))
 	wfm = np.asarray(struct.unpack('100000b', z[8:100008]))
 	#print(len(wfm))
+	time.sleep(td)
 	s.send(b'WFMOutpre:YMU?\n')
-	time.sleep(0.3)
 	rdg=bytearray()
 	while len(rdg)<3:
 		tmp = s.recv(100)
 		rdg.extend(tmp)
 	m = float(rdg.decode("UTF-8"))
+	time.sleep(td)
 	s.send(b'WFMOutpre:YOF?\n')
-	time.sleep(0.3)
 	rdg=bytearray()
 	while len(rdg)<3:
 		tmp = s.recv(100)
@@ -95,9 +87,7 @@ def get_MSO4054_XINcr():
 		tmp = s.recv(4096)
 		rdg.extend(tmp)
 	Ts = rdg.decode("UTF-8")
-	#print(Ts)
 	return float(Ts)
-
 
 
 
@@ -106,7 +96,7 @@ def get_SIGLENT_wfm(CH):
     #import numpy as np
     #import time
 
-    s.send(b'CHDR OFF\n') # suppress headers
+    sds_send(s, b'CHDR OFF\n') # suppress headers
     
     ch_str = f'C{CH}:WF? DAT2\n'  # Request waveform data from channel CH
     s.send(ch_str.encode('UTF-8'))
@@ -132,29 +122,29 @@ def get_SIGLENT_wfm(CH):
 
     # Convert binary data to numpy array
     wfm = np.frombuffer(z, dtype=np.int8)
-    print(len(wfm))
+    print("Waveform length %d" % len(wfm))
 
     # Request vertical scale (e.g., V/div)
     s.send(f'C{CH}:VDIV?\n'.encode('UTF-8'))
     vdiv = float(s.recv(100).decode())
-    print(vdiv)
+    print("V/div %f" % vdiv)
 
     # Request horizontal scale (e.g., s/div)
     s.send(f'TDIV?\n'.encode('UTF-8'))
     tdiv = float(s.recv(100).decode())
-    print(tdiv)
+    print("t/div %f" % tdiv)
     Ts = tdiv*14/num_bytes
-    print(Ts)
+    print("Ts %f" % Ts)
 
     # Request vertical offset
     s.send(f'C{CH}:OFST?\n'.encode('UTF-8'))
     ofst = float(s.recv(100).decode().strip())
-    print(ofst)
+    print("Offset %f " % ofst)
 
     # Apply vertical scaling
     # Siglent sends data centered around 127 (i.e., 8-bit unsigned int)
     volt_per_bit = vdiv / 25  # 10 div screen, 250 levels
-    print(volt_per_bit)
+    print("Volt/bit %f" % volt_per_bit)
     wfm1 = wfm*volt_per_bit-ofst
 
     return wfm1, Ts
@@ -174,10 +164,11 @@ if oscope == "Tek":
 if oscope == "Sig": #Siglent
 	port = 5025 # the port number of the instrument service
 
+
 try:
 	#create an AF_INET, STREAM socket (TCP)
 	s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-	s.settimeout(1)
+	s.settimeout(2)
 except socket.error:
 	print ("Failed to create socket.")
 	sys.exit();
@@ -186,95 +177,110 @@ try:
 	s.connect((remote_ip , port))
 except socket.error:
 	print ("failed to connect to ip " + remote_ip)
-
 	
 try:
-	print("Measuring wideband noise...")
+	print("Measuring narrowband noise...")
 	
 	#AFG1022
 	inst.write('SOUR1:FUNC:SHAP DC')
 	inst.write('SOUR1:VOLT:LEV:IMM:OFFS 0.8') # 5 A into 0.5 ohm load
 	if model=='6401':
-		inst.write('SOUR1:VOLT:LEV:IMM:OFFS 2.5')
+			inst.write('SOUR1:VOLT:LEV:IMM:OFFS 2.5')
 	inst.write('OUTP1:STAT ON')
+	
 	inst.write('SOUR2:FUNC:SHAP DC')
 	inst.write('SOUR2:VOLT:LEV:IMM:OFFS 1.3')
 	inst.write('OUTP2:STAT ON')
 	
-	if oscope=='Tek':
-		s.send(b'SELECT:CH1 ON\n')
-		s.send(b'SELECT:CH2 OFF\n')
+	if oscope == "Tek":
+		s.send(b'SELECT:CH1 OFF\n')
+		s.send(b'SELECT:CH2 ON\n')
 		s.send(b'SELECT:CH3 OFF\n')
 		s.send(b'SELECT:CH4 OFF\n')
 		#set Tek scope trigger	
 		s.send(b'TRIG:A:EDGE:SOUR CH1\n')
 		s.send(b'TRIG:A:EDGE:LEV 1\n')
 		s.send(b'TRIG:A:MOD AUTO\n')
-		#set Tek scope horizontal parameters
-		s.send(b'HOR:SCA 4e-4\n')
+		#set Tek scope horizontal scale
+		s.send(b'HOR:SCA 0.1\n')
 		#s.send(b'ACQuire:MODE AVErage\n')
 		s.send(b'HOR:RECOrdlength 100000\n')
-		#set Tek scope vertical parameters
-		s.send(b'CH1:PROB:GAIN 0.1\n') # set before setting vertical scale
-		s.send(b'CH1:SCALE 0.02\n')
-		s.send(b'CH1:COUP AC\n')
-		s.send(b'CH1:POS 0\n') #position is in divisions
-		s.send(b'CH1:BANDWIDTH TWENTY\n')
+		#set Tek scope vertical scale
+		s.send(b'CH2:SCALE 0.002\n')
+		s.send(b'CH2:COUP AC\n')
+		s.send(b'CH2:POS 0\n') #position is in divisions
+		s.send(b'CH2:BANDWIDTH TWENTY\n')
+			
+		s.send(b'MEASU:MEAS1:TYPE RMS\n')
+		s.send(b'MEASU:MEAS1:SOUR CH2\n')
+		s.send(b'MEASU:MEAS1:STATE ON\n')
 		
-	if oscope == 'Sig':
+		
+	if oscope == "Sig": #Siglent
 		sds_send(s, b'*RST\n')
 		rdg=0
-		while (rdg==0):
+		x=0
+		while (rdg==0 and x<10):
 			try:
 				sds_send(s, b'*IDN?\n')
-				rdg = s.recv(100)
+				rdg = s.recv(1000)
 				print(rdg)
 			except:
-				pass
+				x+=1
 				#print(rdg)
-		try:		
-			rdg = s.recv(100) # clear serial buffer
-		except:
-			pass
+		#time.sleep(3)
+		# try:		
+			# rdg = s.recv(100) # clear serial buffer
+		# except:
+			# pass
 		print("Configuring instruments...")
-		sds_send(s, b'C1:TRA ON\n') #Trace on/off
-		sds_send(s, b'C2:TRA OFF\n')
-		sds_send(s, b'C3:TRA OFF\n')
-		sds_send(s, b'C4:TRA OFF\n')
+		time.sleep(2) # wait after reset
 				
-		sds_send(s, b'C1:TRLV 920e-6\n')          # Trigger level
-		sds_send(s, b'TRMD AUTO\n')            # Auto trigger mode
+		sds_send(s, b'C1:TRACE OFF\n') #Trace on/off
+		sds_send(s, b'C2:TRACE OFF\n')
+		sds_send(s, b'C3:TRACE OFF\n')
+		sds_send(s, b'C4:TRACE OFF\n')
+						
+		sds_send(s, b'C1:ATTENUATION 10\r\n')
+		sds_send(s, b'C1:COUPLING A1M\r\n')               
+		sds_send(s, b'C1:VOLT_DIV 0.02V\r\n')            
+		sds_send(s, b'C1:OFFSET 0V\r\n')                
+				
+		sds_send(s, b'TRIG_DELAY 4US\n')    
+		sds_send(s, b'TIME_DIV 400US\n')                 
+		sds_send(s, b'MEMORY_SIZE 140K\n')      
 		
-		sds_send(s, b'TDIV 4e-4\n')                 # Time/div in seconds
-		sds_send(s, b'MSIZ 140K\n')                # Memory depth (record length)
+		sds_send(s, b'TRIG_MODE AUTO\n')            
+		sds_send(s, b'C1:TRIG_LEVEL 4m\n')          
 		
-		sds_send(s, b'C1:ATTN 10\n')
-		sds_send(s, b'C1:VDIV 0.02\n')            # Volts/div
-		sds_send(s, b'C1:CPL A1M\n')               # Coupling AC 1MOhm
-		sds_send(s, b'C1:OFST 0\n')                # Offset in volts
-		sds_send(s, b'BWL C1,ON\n')               # Bandwidth limit: 20 MHz
-		
-		
+		sds_send(s, b'BANDWIDTH_LIMIT C1,ON\n')              
+				
+		#sds_send(s, b'PARAMETER_CUSTOM:STDEV,C1\n')
+			
 	
-	print("Acquiring data...")
+	print("Acquiring data...")	
 	time.sleep(2)
-
-	#print(Ts)
+	
 	if oscope == "Tek":
 		Wfm1 = get_MSO4054_wfm('CH1')
 		Ts = get_MSO4054_XINcr()
 	if oscope == "Sig":
-		[Wfm1, Ts] = get_SIGLENT_wfm('1')
-
+		[Wfm1a, Ts] = get_SIGLENT_wfm('1')
+		Wfm1 = Wfm1a[0:100000]
+		
+		
 	N = len(Wfm1)
+	print("N = %d " % N)
 	t = np.arange(N)*Ts
 	f0 = 1/(N*Ts)
+	print("f0 %f" % f0)
 	f = np.arange(N)*f0
 	
 	y = Wfm1
 	Y1 = np.fft.fft(y)
 	magY1 = abs(Y1)/(N/2)
-
+	
+	
 	#fp = open("test.txt", 'a')
 	#fp.write("%f,%f,%f,%f,%f,%f\n" %(f, vtrim, itrim, vcoil, pha1, pha2))
 	#fp.close()
@@ -284,7 +290,7 @@ except Exception as err:
 	#print ("failed to send to ip " + remote_ip)
 	print(err)
 	
-
+#s.close()
 
 print("Making plot...")
 fig1 = plt.figure(1, figsize=(11,8))
@@ -343,6 +349,5 @@ plt.savefig(filepath+filename)
 plt.show()
 
 s.close()
-
 
 

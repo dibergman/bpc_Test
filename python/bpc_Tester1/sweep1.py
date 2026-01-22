@@ -1,4 +1,4 @@
-# slow triangle setpoint when measuring PWM drive signals
+# slow triangle setpoint when measuring bridge outputs
 import socket 
 import sys
 import time
@@ -9,15 +9,17 @@ import numpy as np
 #from matplotlib import ticker as tick
 import pyvisa
 
+
 def sds_send(sock, scpi_cmd):
     sock.sendall(scpi_cmd)
-    #print(scpi_cmd)
-    time.sleep(0.7)
+    print(scpi_cmd)
+    time.sleep(0.5)
     
 
-F=14
 oscope = 'Sig'
 td1=0.1
+F=14
+
 #file_str = "step_resp_%s_%s_CH%s.png" %(model, serial, chan)
 
 rm = pyvisa.ResourceManager()
@@ -50,8 +52,8 @@ except socket.error:
 
 inst.write('SOUR1:FUNC:SHAP RAMP')
 inst.write('SOUR1:VOLT:LEV:IMM:OFFS 0')
-inst.write('SOUR1:VOLT:LEV:IMM:AMPL 5')
-inst.write('SOUR1:FREQ:FIX 0.25')
+inst.write('SOUR1:VOLT:LEV:IMM:AMPL 4')
+inst.write('SOUR1:FREQ:FIX 0.125')
 inst.write('OUTP1:STAT ON')
 #print(inst.query('OUTP2:STAT?'))
 #print(inst.query('SOUR2:FUNC:SHAP?'))
@@ -59,83 +61,81 @@ inst.write('OUTP1:STAT ON')
 
 try:
 	#print("Acquiring data")
-	if oscope =='Tek':
+	if oscope == 'Tek':
 		s.send(b'SELECT:CH1 ON\n')
 		s.send(b'SELECT:CH2 ON\n')
 		s.send(b'SELECT:CH3 OFF\n')
 		s.send(b'SELECT:CH4 ON\n')
 		#set Tek scope trigger
 		s.send(b'TRIG:A:EDGE:SOUR CH1\n')
-		s.send(b'TRIG:A:LEV 2\n')
+		s.send(b'TRIG:A:LEV 1\n')
 		s.send(b'TRIG:A:EDGE:SLO RISE\n')
 		#set Tek scope horizontal scale
 		s.send(b'HOR:SCA 800e-9\n')
 		s.send(b'HOR:DEL:MOD ON\n')
 		s.send(b'HOR:DEL:TIM 0\n')
 		#set Tek scope vertical scale
-		s.send(b'CH1:SCALE 5\n')
+		s.send(b'CH1:SCALE 10\n')
 		s.send(b'CH1:COUP DC\n')
 		s.send(b'CH1:POS 0\n')
-		s.send(b'CH2:SCALE 5\n')
+		s.send(b'CH2:SCALE 10\n')
 		s.send(b'CH2:COUP DC\n')
 		s.send(b'CH2:POS 0\n')
-		s.send(b'CH4:SCALE 5\n')
-		s.send(b'CH4:COUP DC\n')
-		s.send(b'CH4:POS -4\n')
-	
-	if oscope =='Sig':
+	if oscope == 'Sig':
 		sds_send(s, b'*RST\n')
 		rdg=0
-		while (rdg==0):
+		x=0
+		while (rdg==0 and x<10):
 			try:
 				sds_send(s, b'*IDN?\n')
-				rdg = s.recv(100)
+				rdg = s.recv(1000)
 				print(rdg)
 			except:
-				pass
+				x+=1
 				#print(rdg)
-		try:		
-			rdg = s.recv(100) # clear serial buffer
-		except:
-			pass
+		#try:		
+		#	rdg = s.recv(100) # clear serial buffer
+		#except:
+		#	pass
 		print("Configuring instruments...")
-		sds_send(s, b'C1:TRA ON\n')
-		sds_send(s, b'C2:TRA ON\n')
+		time.sleep(3)
+		sds_send(s, b'C1:TRA OFF\n')
+		sds_send(s, b'C2:TRA OFF\n')
 		sds_send(s, b'C3:TRA OFF\n')
-		sds_send(s, b'C4:TRA ON\n')
-					
+		sds_send(s, b'C4:TRA OFF\n')
+		#set Siglent scope trigger
+		sds_send(s, b'C1:TRLV 0.3\n')          # Trigger level
+		sds_send(s, b'TRMD AUTO\n')            # Auto trigger mode
+				
 		#set Siglent scope horizontal scale
 		sds_send(s, b'MSIZ 14K\n')                # Memory depth (record length)
 		sds_send(s, b'TDIV 500e-9\n')                 # Time/div in seconds
 		sds_send(s, b'TRDL 0\n')
 		
 		#set Siglent scope vertical scale
-		sds_send(s, b'C1:ATTN 10\n')
-		sds_send(s, b'C1:VDIV 5\n')
-		sds_send(s, b'C1:CPL D1M\n')
-		sds_send(s, b'C1:OFST 0\n')
-		sds_send(s, b'C2:ATTN 10\n')
-		sds_send(s, b'C2:VDIV 5\n')
-		sds_send(s, b'C2:CPL D1M\n')
-		sds_send(s, b'C2:OFST 0\n')
+		sds_send(s, b'C1:ATTENUATION 10\n')
+		sds_send(s, b'C1:COUPLING D1M\n')
+		sds_send(s, b'C1:VOLT_DIV 5\n')
+		sds_send(s, b'C1:OFFSET 0\n')
+		
+		sds_send(s, b'C2:ATTENUATION 10\n')
+		sds_send(s, b'C2:COUPLING D1M\n')
+		sds_send(s, b'C2:VOLT_DIV 5\n')
+		sds_send(s, b'C2:OFFSET 0\n')
+		
 		#sds_send(s, b'CH1:POS -4\n') #position is in divisions
-		sds_send(s, b'C4:ATTN 1\n')
-		sds_send(s, b'C4:VDIV 5\n')
-		sds_send(s, b'C4:CPL D1M\n')
-		sds_send(s, b'C4:OFST -10\n')
+		sds_send(s, b'C4:ATTENUATION 1\n')
+		sds_send(s, b'C4:COUPLING D1M\n')
+		sds_send(s, b'C4:VOLT_DIV 5\n')
+		sds_send(s, b'C4:OFFSET -10\n')
 		#sds_send(s, b'CH4:POS -4\n')
+		
 		sds_send(s, b'BWL C1,ON,C2,ON,C4,ON\n')
-		
-		#set Siglent scope trigger
-		
-		sds_send(s, b'TRMD AUTO\n')            # Auto trigger mode
-		sds_send(s, b'C1:TRLV 0.3\n')          # Trigger level. Need to divide desired levle by atten factor
-		
-		
+			
 	#wait 10 s then turn function generator outputs off
 	clk = time.time()
-	while time.time()-clk < 8:
-		print("Stopping in %d seconds...\r" % (clk+8-time.time()+1), end="")
+	while time.time()-clk < 15:
+		print("Stopping in %d seconds...\r" % (clk+15-time.time()+1), end="")
 		time.sleep(1)
 	inst.write('SOUR1:FUNC:SHAP DC')
 	inst.write('SOUR1:VOLT:LEV:IMM:OFFS 0')
@@ -144,11 +144,6 @@ try:
 	inst.write('SOUR2:VOLT:LEV:IMM:OFFS 0')
 	inst.write('OUTP2:STAT OFF')
 	print("")
-
-except KeyboardInterrupt:
-	inst.write('SOUR1:FUNC:SHAP DC')
-	inst.write('SOUR1:VOLT:LEV:IMM:OFFS 0')
-	inst.write('OUTP1:STAT OFF')
 
 except Exception as err:
 	#print ("failed to send to ip " + remote_ip)

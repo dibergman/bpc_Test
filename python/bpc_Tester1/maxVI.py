@@ -55,8 +55,8 @@ except socket.error:
 
 rm = pyvisa.ResourceManager()
 #print(rm.list_resources() )
-inst = rm.open_resource('USB0::1689::851::2347672::0::INSTR')
-#inst = rm.open_resource('USB0::1689::851::2347693::0::INSTR')
+#inst = rm.open_resource('USB0::1689::851::2347672::0::INSTR')
+inst = rm.open_resource('USB0::1689::851::2347693::0::INSTR')
 #print(inst.query("*IDN?"))
 
 

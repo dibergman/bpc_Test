@@ -13,16 +13,8 @@ import os
 
 def sds_send(sock, scpi_cmd):
 	sock.sendall(scpi_cmd)
-	#now = time.time()
-	#while (time.time()-now)<1:
-	#	sock.sendall(b'*OPC\n')
-	#	sock.sendall(b'*OPC?\n')
-	#	x=sock.recv(1000)
-	#	print(x)
-	#	if x==b'1\n':
-	#		break
-	#print()
-	time.sleep(0.7)
+	print(scpi_cmd)
+	time.sleep(0.4)
 
 #oscope = "Tek"
 oscope = "Sig"
@@ -129,7 +121,7 @@ def get_SIGLENT_wfm(CH):
     #import numpy as np
     #import time
 
-    s.send(b'CHDR OFF\n') # suppress headers
+    sds_send(s, b'CHDR OFF\n') # suppress headers
     
     ch_str = f'C{CH}:WF? DAT2\n'  # Request waveform data from channel CH
     s.send(ch_str.encode('UTF-8'))
@@ -237,52 +229,57 @@ try:
 	if oscope == 'Sig':
 		sds_send(s, b'*RST\n')
 		rdg=0
-		while (rdg==0):
+		x=0
+		while (rdg==0 and x<10):
 			try:
 				sds_send(s, b'*IDN?\n')
-				rdg = s.recv(100)
+				rdg = s.recv(1000)
 				print(rdg)
 			except:
-				pass
+				x+=1
 				#print(rdg)
 		try:		
-			rdg = s.recv(100) # clear serial buffer
+			rdg = s.recv(1000) # clear serial buffer
 		except:
 			pass
+			
 		print("Configuring instruments...")
-		sds_send(s, b'C1:TRA ON\n')
-		sds_send(s, b'C2:TRA OFF\n')
-		sds_send(s, b'C3:TRA OFF\n')
-		sds_send(s, b'C4:TRA ON\n')
-		#set Siglent scope trigger
-		sds_send(s, b'C4:TRLV 1.0\n')          # Trigger level. Divide by atten factor
-		sds_send(s, b'TRMD NORM\n')            # Auto trigger mode
-		sds_send(s, b'C4:TRSL POS\n')
+		time.sleep(3) # wait after reset
+		
+		sds_send(s, b'C1:TRACE OFF\n') #Trace on/off
+		sds_send(s, b'C2:TRACE OFF\n')
+		sds_send(s, b'C3:TRACE OFF\n')
+		sds_send(s, b'C4:TRACE OFF\n')
 				
-		#set Siglent scope horizontal scale
-		sds_send(s, b'MSIZ 14K\n')                # Memory depth (record length)
+		sds_send(s, b'C1:ATTENUATION 10\r\n')
+		sds_send(s, b'C1:COUPLING D1M\r\n')               
+		sds_send(s, b'C1:VOLT_DIV 1\r\n')            
+		sds_send(s, b'C1:OFFSET -0.5V\r\n')     
+				
+		sds_send(s, b'C4:ATTENUATION 1\r\n')
+		sds_send(s, b'C4:COUPLING D1M\r\n')               
+		sds_send(s, b'C4:VOLT_DIV 0.5\r\n')            
+		sds_send(s, b'C4:OFFSET -1.5\r\n')  
+		
+		sds_send(s, b'BANDWIDTH_LIMIT C1,ON\n')  
+				
+		sds_send(s, b'TRIG_MODE NORM\n')            
+		sds_send(s, b'C4:TRIG_LEVEL 1\n')
+		sds_send(s, b'C4:TRIG_SLOPE POS\n')    
+		
+		
 		if model == "6201" or model == "6101" or model=='6401' or model=="6203":
-			sds_send(s, b'TDIV 0.001\n')                 # Time/div in seconds
-			sds_send(s, b'TRDL -0.003\n')
+			sds_send(s, b'TIME_DIV 1MS\n') 
+			sds_send(s, b'TRIG_DELAY -3MS\n')    
+			                
 		if model == "6202":
-			sds_send(s, b'TDIV 50e-6\n')                 # Time/div in seconds
-			sds_send(s, b'TRDL -2e-4\n')
-		
-		#set Siglent scope vertical scale
-		sds_send(s, b'C1:ATTN 10\n')
-		sds_send(s, b'C1:VDIV 1\n')
-		sds_send(s, b'C1:CPL D1M\n')
-		sds_send(s, b'C1:OFST -0.5\n')
-		#sds_send(s, b'CH1:POS -4\n') #position is in divisions
-		sds_send(s, b'C4:ATTN 1\n')
-		sds_send(s, b'C4:VDIV 0.5\n')
-		sds_send(s, b'C4:CPL D1M\n')
-		sds_send(s, b'C4:OFST -1.5\n')
-		#sds_send(s, b'CH4:POS -4\n')
-		sds_send(s, b'BWL C1,ON,C4,ON\n')
+			sds_send(s, b'TIME_DIV 50US\n')
+			sds_send(s, b'TRIG_DELAY -200US\n') 
+			
+		sds_send(s, b'MEMORY_SIZE 14K\n')      
 	
-		
-		sds_send(s, b'PACU:RISE,C1\n')
+				
+		sds_send(s, b'PARAMETER_CUSTOM:RISE,C1\n')
 	
 	print("Acquiring data...")
 	time.sleep(2)

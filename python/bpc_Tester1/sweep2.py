@@ -12,7 +12,8 @@ import pyvisa
 
 def sds_send(sock, scpi_cmd):
     sock.sendall(scpi_cmd)
-    time.sleep(0.7)
+    print(scpi_cmd)
+    time.sleep(0.5)
     
 
 oscope = 'Sig'
@@ -51,7 +52,7 @@ except socket.error:
 
 inst.write('SOUR1:FUNC:SHAP RAMP')
 inst.write('SOUR1:VOLT:LEV:IMM:OFFS 0')
-inst.write('SOUR1:VOLT:LEV:IMM:AMPL 2')
+inst.write('SOUR1:VOLT:LEV:IMM:AMPL 4')
 inst.write('SOUR1:FREQ:FIX 0.125')
 inst.write('OUTP1:STAT ON')
 #print(inst.query('OUTP2:STAT?'))
@@ -83,23 +84,25 @@ try:
 	if oscope == 'Sig':
 		sds_send(s, b'*RST\n')
 		rdg=0
-		while (rdg==0):
+		x=0
+		while (rdg==0 and x<10):
 			try:
 				sds_send(s, b'*IDN?\n')
-				rdg = s.recv(100)
+				rdg = s.recv(1000)
 				print(rdg)
 			except:
-				pass
+				x+=1
 				#print(rdg)
-		try:		
-			rdg = s.recv(100) # clear serial buffer
-		except:
-			pass
+		#try:		
+		#	rdg = s.recv(100) # clear serial buffer
+		#except:
+		#	pass
 		print("Configuring instruments...")
-		sds_send(s, b'C1:TRA ON\n')
-		sds_send(s, b'C2:TRA ON\n')
+		time.sleep(3)
+		sds_send(s, b'C1:TRA OFF\n')
+		sds_send(s, b'C2:TRA OFF\n')
 		sds_send(s, b'C3:TRA OFF\n')
-		sds_send(s, b'C4:TRA ON\n')
+		sds_send(s, b'C4:TRA OFF\n')
 		#set Siglent scope trigger
 		sds_send(s, b'C1:TRLV 0.3\n')          # Trigger level
 		sds_send(s, b'TRMD AUTO\n')            # Auto trigger mode
@@ -110,20 +113,23 @@ try:
 		sds_send(s, b'TRDL 0\n')
 		
 		#set Siglent scope vertical scale
-		sds_send(s, b'C1:ATTN 10\n')
-		sds_send(s, b'C1:VDIV 10\n')
-		sds_send(s, b'C1:CPL D1M\n')
-		sds_send(s, b'C1:OFST 0\n')
-		sds_send(s, b'C2:ATTN 10\n')
-		sds_send(s, b'C2:VDIV 10\n')
-		sds_send(s, b'C2:CPL D1M\n')
-		sds_send(s, b'C2:OFST 0\n')
+		sds_send(s, b'C1:ATTENUATION 10\n')
+		sds_send(s, b'C1:COUPLING D1M\n')
+		sds_send(s, b'C1:VOLT_DIV 10\n')
+		sds_send(s, b'C1:OFFSET 0\n')
+		
+		sds_send(s, b'C2:ATTENUATION 10\n')
+		sds_send(s, b'C2:COUPLING D1M\n')
+		sds_send(s, b'C2:VOLT_DIV 10\n')
+		sds_send(s, b'C2:OFFSET 0\n')
+		
 		#sds_send(s, b'CH1:POS -4\n') #position is in divisions
-		sds_send(s, b'C4:ATTN 1\n')
-		sds_send(s, b'C4:VDIV 5\n')
-		sds_send(s, b'C4:CPL D1M\n')
-		sds_send(s, b'C4:OFST -10\n')
+		sds_send(s, b'C4:ATTENUATION 1\n')
+		sds_send(s, b'C4:COUPLING D1M\n')
+		sds_send(s, b'C4:VOLT_DIV 5\n')
+		sds_send(s, b'C4:OFFSET -10\n')
 		#sds_send(s, b'CH4:POS -4\n')
+		
 		sds_send(s, b'BWL C1,ON,C2,ON,C4,ON\n')
 			
 	#wait 10 s then turn function generator outputs off

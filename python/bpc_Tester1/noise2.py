@@ -13,16 +13,8 @@ import os
 
 def sds_send(sock, scpi_cmd):
 	sock.sendall(scpi_cmd)
-	#now = time.time()
-	#while (time.time()-now)<1:
-	#	sock.sendall(b'*OPC\n')
-	#	sock.sendall(b'*OPC?\n')
-	#	x=sock.recv(1000)
-	#	print(x)
-	#	if x==b'1\n':
-	#		break
-	#print()
-	time.sleep(0.7)
+	print(scpi_cmd)
+	time.sleep(0.15)
     
 
 
@@ -104,7 +96,7 @@ def get_SIGLENT_wfm(CH):
     #import numpy as np
     #import time
 
-    s.send(b'CHDR OFF\n') # suppress headers
+    sds_send(s, b'CHDR OFF\n') # suppress headers
     
     ch_str = f'C{CH}:WF? DAT2\n'  # Request waveform data from channel CH
     s.send(ch_str.encode('UTF-8'))
@@ -220,35 +212,43 @@ try:
 	if oscope == 'Sig':
 		sds_send(s, b'*RST\n')
 		rdg=0
-		while (rdg==0):
+		x=0
+		while (rdg==0 and x<10):
 			try:
 				sds_send(s, b'*IDN?\n')
-				rdg = s.recv(100)
+				rdg = s.recv(1000)
 				print(rdg)
 			except:
-				pass
+				x+=1
 				#print(rdg)
-		try:		
-			rdg = s.recv(100) # clear serial buffer
-		except:
-			pass
-		print("Configuring instruments...")
-		sds_send(s, b'C1:TRA ON\n') #Trace on/off
-		sds_send(s, b'C2:TRA OFF\n')
-		sds_send(s, b'C3:TRA OFF\n')
-		sds_send(s, b'C4:TRA OFF\n')
+		#try:		
+		#	rdg = s.recv(100) # clear serial buffer
+		#except:
+		#	pass
 			
-		sds_send(s, b'C1:TRLV 920e-6\n')          # Trigger level
-		sds_send(s, b'TRMD AUTO\n')            # Auto trigger mode
+		print("Configuring instruments...")
+		time.sleep(2) # wait after reset
 		
-		sds_send(s, b'TDIV 4e-4\n')                 # Time/div in seconds
-		sds_send(s, b'MSIZ 140K\n')                # Memory depth (record length)
+		sds_send(s, b'C1:TRACE OFF\n') #Trace on/off
+		sds_send(s, b'C2:TRACE OFF\n')
+		sds_send(s, b'C3:TRACE OFF\n')
+		sds_send(s, b'C4:TRACE OFF\n')
+						
+		sds_send(s, b'C1:ATTENUATION 10\r\n')
+		sds_send(s, b'C1:COUPLING A1M\r\n')               
+		sds_send(s, b'C1:VOLT_DIV 0.02V\r\n')            
+		sds_send(s, b'C1:OFFSET 0V\r\n')                
+				
+		sds_send(s, b'TRIG_DELAY 4US\n')    
+		sds_send(s, b'TIME_DIV 400US\n')                 
+		sds_send(s, b'MEMORY_SIZE 140K\n')      
 		
-		sds_send(s, b'C1:ATTN 10\n')
-		sds_send(s, b'C1:VDIV 0.05\n')            # Volts/div
-		sds_send(s, b'C1:CPL A1M\n')               # Coupling AC 1MOhm
-		sds_send(s, b'C1:OFST 0\n')                # Offset in volts
-		sds_send(s, b'BWL C1,ON,C2,ON,C4,ON\n')
+		sds_send(s, b'TRIG_MODE AUTO\n')            
+		sds_send(s, b'C1:TRIG_LEVEL 4m\n')          
+		
+		sds_send(s, b'BANDWIDTH_LIMIT C1,ON\n')              
+				
+		#sds_send(s, b'PARAMETER_CUSTOM:STDEV,C1\n')
 		
 	
 	

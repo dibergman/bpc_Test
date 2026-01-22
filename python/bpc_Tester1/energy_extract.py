@@ -13,16 +13,8 @@ import os
 
 def sds_send(sock, scpi_cmd):
 	sock.sendall(scpi_cmd)
-	#now = time.time()
-	#while (time.time()-now)<1:
-	#	sock.sendall(b'*OPC\n')
-	#	sock.sendall(b'*OPC?\n')
-	#	x=sock.recv(1000)
-	#	print(x)
-	#	if x==b'1\n':
-	#		break
-	#print()
-	time.sleep(0.7)
+	print(scpi_cmd)
+	time.sleep(0.15)
     
 
 #oscope = "Tek"
@@ -238,41 +230,52 @@ try:
 	if oscope == "Sig":
 		sds_send(s, b'*RST\n')
 		rdg=0
-		while (rdg==0):
+		x=0
+		while (rdg==0 and x<10):
 			try:
 				sds_send(s, b'*IDN?\n')
-				rdg = s.recv(100)
+				rdg = s.recv(1000)
 				print(rdg)
 			except:
-				pass
+				x+=1
 				#print(rdg)
 		try:		
 			rdg = s.recv(100) # clear serial buffer
 		except:
 			pass
 		print("Configuring instruments...")
+		time.sleep(3)
+		
 		sds_send(s, b'C1:TRA OFF\n')
 		sds_send(s, b'C2:TRA OFF\n')
-		sds_send(s, b'C3:TRA ON\n')
-		sds_send(s, b'C4:TRA ON\n')
-		sds_send(s, b'TRMD AUTO\n') # clear the display
+		sds_send(s, b'C3:TRA OFF\n')
+		sds_send(s, b'C4:TRA OFF\n')
+		
+		sds_send(s, b'C3:ATTENUATION 1\r\n')
+		sds_send(s, b'C3:COUPLING D1M\r\n')               
+		sds_send(s, b'C3:VOLT_DIV 5\r\n')            
+		sds_send(s, b'C3:OFFSET 0V\r\n')     
+		
+		sds_send(s, b'C4:ATTENUATION 1\n')
+		sds_send(s, b'C4:COUPLING D1M\n')               
+		sds_send(s, b'C4:VOLT_DIV 2\n')            
+		sds_send(s, b'C4:OFFSET 0\n')  
+		
+		sds_send(s, b'BWL C3,ON,C4,ON\n')
+		
+		sds_send(s, b'TRIG_MODE AUTO\n') # clear the display
 		#set Sig scope trigger
-		sds_send(s, b'C3:TRLV -1\n')
-		sds_send(s, b'TRMD NORM\n')
+		sds_send(s, b'C3:TRIG_LEVEL -1\n')
+		sds_send(s, b'TRIG_MODE NORM\n')
+		
 		#set Sig scope horizontal scale
-		sds_send(s, b'TDIV 0.02\n')
-		sds_send(s, b'TRDL -0.06\n')
-		sds_send(s, b'MSIZ 7K\n') 
-		#set Sig scope vertical scale
-		sds_send(s, b'C3:ATTN 1\n')
-		sds_send(s, b'C4:ATTN 1\n')
-		sds_send(s, b'C3:VDIV 5\n')
-		sds_send(s, b'C3:CPL D1M\n')
-		sds_send(s, b'C4:VDIV 2\n')
-		sds_send(s, b'C4:CPL D1M\n')
-		sds_send(s, b'C3:OFST 0\n')
-		sds_send(s, b'C4:OFST 0\n')
-		sds_send(s, b'BWL C1,ON,C2,ON,C3,ON,C4,ON\n')
+		sds_send(s, b'TIME_DIV 0.02\n')
+		sds_send(s, b'TRIG_DELAY -0.06\n')
+		sds_send(s, b'MEMORY_SIZE 7K\n')
+		 
+		
+		
+		
 			
 	
 	
@@ -282,7 +285,7 @@ try:
 	input()
 	print("Acquiring data")
 	
-	time.sleep(5)
+	time.sleep(2)
 	if oscope == "Tek":
 		Wfm2 = get_MSO4054_wfm('CH3')
 		Wfm3 = get_MSO4054_wfm('CH4')
