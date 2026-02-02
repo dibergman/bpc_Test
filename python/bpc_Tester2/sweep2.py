@@ -99,18 +99,18 @@ try:
 		#	pass
 		print("Configuring instruments...")
 		time.sleep(3)
-		sds_send(s, b'C1:TRA OFF\n')
-		sds_send(s, b'C2:TRA OFF\n')
-		sds_send(s, b'C3:TRA OFF\n')
-		sds_send(s, b'C4:TRA OFF\n')
+		sds_send(s, b'C1:TRACE OFF\n')
+		sds_send(s, b'C2:TRACE OFF\n')
+		sds_send(s, b'C3:TRACE OFF\n')
+		sds_send(s, b'C4:TRACE OFF\n')
 		#set Siglent scope trigger
-		sds_send(s, b'C1:TRLV 0.3\n')          # Trigger level
-		sds_send(s, b'TRMD AUTO\n')            # Auto trigger mode
+		sds_send(s, b'C1:TRIG_LEVEL 0.3\n')          # Trigger level
+		sds_send(s, b'TRIG_MODE AUTO\n')            # Auto trigger mode
 				
 		#set Siglent scope horizontal scale
-		sds_send(s, b'MSIZ 14K\n')                # Memory depth (record length)
-		sds_send(s, b'TDIV 500e-9\n')                 # Time/div in seconds
-		sds_send(s, b'TRDL 0\n')
+		sds_send(s, b'MEMORY_SIZE 14K\n')                # Memory depth (record length)
+		sds_send(s, b'TIME_DIV 500e-9\n')                 # Time/div in seconds
+		sds_send(s, b'TRIG_DELAY 0\n')
 		
 		#set Siglent scope vertical scale
 		sds_send(s, b'C1:ATTENUATION 10\n')
@@ -130,7 +130,7 @@ try:
 		sds_send(s, b'C4:OFFSET -10\n')
 		#sds_send(s, b'CH4:POS -4\n')
 		
-		sds_send(s, b'BWL C1,ON,C2,ON,C4,ON\n')
+		sds_send(s, b'BANDWIDTH_LIMIT C1,ON,C2,ON,C4,ON\n')
 			
 	#wait 10 s then turn function generator outputs off
 	clk = time.time()
