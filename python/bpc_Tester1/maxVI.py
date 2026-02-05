@@ -11,16 +11,8 @@ import pyvisa
 
 def sds_send(sock, scpi_cmd):
 	sock.sendall(scpi_cmd)
-	#now = time.time()
-	#while (time.time()-now)<1:
-	#	sock.sendall(b'*OPC\n')
-	#	sock.sendall(b'*OPC?\n')
-	#	x=sock.recv(1000)
-	#	print(x)
-	#	if x==b'1\n':
-	#		break
-	#print()
-	time.sleep(0.7)
+	#print(scpi_cmd)
+	time.sleep(0.25)
     
 
 F=14
@@ -55,8 +47,8 @@ except socket.error:
 
 rm = pyvisa.ResourceManager()
 #print(rm.list_resources() )
-#inst = rm.open_resource('USB0::1689::851::2347672::0::INSTR')
-inst = rm.open_resource('USB0::1689::851::2347693::0::INSTR')
+inst = rm.open_resource('USB0::1689::851::2347672::0::INSTR')
+#inst = rm.open_resource('USB0::1689::851::2347693::0::INSTR')
 #print(inst.query("*IDN?"))
 
 
@@ -71,7 +63,7 @@ if state == 'off' or state == 'OFF':
 	#inst.write('OUTP1:STAT OFF')
 	#inst.write('OUTP2:STAT OFF')
 if state == 'on' or state == 'ON':
-	inst.write('SOUR1:VOLT:LEV:IMM:OFFS 4.8') # 18 V output
+	inst.write('SOUR1:VOLT:LEV:IMM:OFFS 4.7') # 18 V output
 	inst.write('SOUR2:VOLT:LEV:IMM:OFFS 0')
 	inst.write('OUTP1:STAT ON')
 	inst.write('OUTP2:STAT ON')
@@ -97,15 +89,15 @@ if oscope == 'Sig':
 	except:
 		pass
 	print("Configuring instruments...")
-	sds_send(s, b'C1:TRA ON\n')
-	sds_send(s, b'C2:TRA OFF\n')
-	sds_send(s, b'C3:TRA OFF\n')
-	sds_send(s, b'C4:TRA ON\n')
+	sds_send(s, b'C1:TRACE ON\n')
+	sds_send(s, b'C2:TRACE OFF\n')
+	sds_send(s, b'C3:TRACE OFF\n')
+	sds_send(s, b'C4:TRACE ON\n')
 	#set Siglent scope trigger
-	sds_send(s, b'C1:ATTN 10\n')
-	sds_send(s, b'C4:TRLV 0.1\n')          # Trigger level. Divid by atten factor
-	sds_send(s, b'TRMD AUTO\n')            # Auto trigger mode
-	sds_send(s, b'C1:VDIV 10\n')
-	sds_send(s, b'C1:CPL D1M\n')
+	sds_send(s, b'C1:ATTENUATION 10\n')
+	sds_send(s, b'C4:TRIG_LEVEL 0.1\n')          # Trigger level. Divid by atten factor
+	sds_send(s, b'TRIG_MODE AUTO\n')            # Auto trigger mode
+	sds_send(s, b'C1:VOLT_DIV 10\n')
+	sds_send(s, b'C1:COUPLING D1M\n')
 
 s.close()

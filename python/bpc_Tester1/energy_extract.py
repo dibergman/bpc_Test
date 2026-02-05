@@ -182,7 +182,7 @@ print("Testing energy extraction...")
 #AFG1022
 inst.write('SOUR1:FUNC:SHAP DC')
 if model == "6201" or model == "6202":
-	inst.write('SOUR1:VOLT:LEV:IMM:OFFS 4.8')
+	inst.write('SOUR1:VOLT:LEV:IMM:OFFS 4.7')
 if model == "6101" or model=='6401':
 	inst.write('SOUR1:VOLT:LEV:IMM:OFFS 4.8')
 inst.write('OUTP1:STAT ON')
