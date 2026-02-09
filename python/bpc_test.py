@@ -79,7 +79,7 @@ for k in chan:
 			print("\n\n")
 			print("1. Testing wideband noise...\n")
 			print("a. With BPC CH%s OFF, verify load and differential probe connections." % k) 
-			print("b. Connect signal generator cable into CH%s_RegOut connector on bench channel interface board." % k)
+			print("b. Move Nano board cable connections to CH%s connectors." % k)
 			print("c. Turn BPC CH%s ON." % k)
 			print("\nPress Enter when ready or 's' to skip...", end="")
 			x = input()
@@ -165,7 +165,8 @@ for k in chan:
 			system('clear')
 			print("\n\n")
 			print("6. Testing max V and I...\n")
-			print("a. Verify load connection")
+			print("a. Verify load connection.")
+			print("b. Turn on power converter.")
 			print("\nPress Enter when ready or 's' to skip...", end="")
 			x=input()
 			flag1=0
@@ -225,7 +226,7 @@ for k in chan:
 			#print("\n")
 
 			filepath="/home/dib/%s/%s_%s/" % (model,model1,serial)
-			print("Copy files from /home/dib/_temp/ to %s ? (y/n)" % filepath )
+			print("Copy files from /home/dib/_temp/ to %s ? (y/n) " % filepath , end="")
 			x=input()
 			if x=='y':
 				try:

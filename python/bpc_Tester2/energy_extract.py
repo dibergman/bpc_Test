@@ -278,7 +278,7 @@ try:
 		
 			
 	
-	
+	print("")
 	print("Make sure DUT channel is on, verify current, ", end="")
 	print("then turn off channel.")
 	print("Press Enter when ready.")
