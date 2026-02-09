@@ -26,7 +26,7 @@ serial = sys.argv[2]
 chan = sys.argv[3]
 
 modelname = "%s_%s" % (model,serial)
-filename = "%s_%s_CH%s_lf_noise.png" %(model, serial, chan)
+filename = "%s_%s_CH%s_dm_noise.png" %(model, serial, chan)
 #filepath = './2ch/' + modelname + '/'
 filepath = "./_temp/"
 

@@ -189,7 +189,7 @@ for k in chan:
 					while (current < Imax):
 						sock.sendto(message, server_address)
 						data, addr = sock.recvfrom(2048)
-						w1 = np.asarray(struct.unpack('<62f', data))
+						w1 = np.asarray(struct.unpack('>62f', data))
 						w = w1[2:62]
 						if model1=='6201' or model1=='6202':
 							current = (w[(k-1)*4+1]+w[(k-1)*4+2]+w[(k-1)*4+3]+w[(k-1)*4+4])/2
