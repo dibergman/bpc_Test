@@ -78,7 +78,7 @@ for k in chan:
 			system('clear')
 			print("\n\n")
 			print("1. Testing wideband noise...\n")
-			print("a. With BPC CH%s OFF, verify load and differential probe connections." % k) 
+			print("a. With all BPC channels turned OFF, verify load and differential probe connections on CH%s." % k) 
 			print("b. Move Nano board cable connections to CH%s connectors." % k)
 			print("c. Turn BPC CH%s ON." % k)
 			print("\nPress Enter when ready or 's' to skip...", end="")
@@ -231,12 +231,14 @@ for k in chan:
 			if x=='y':
 				try:
 					os.mkdir(filepath)
+					print("Directory created")
 				except:
 					print("Cannot create directory")
 				cmd_str = "cp /home/dib/_temp/%s_%s* %s." % (model1, serial, filepath)
 				os.system(cmd_str)
 				print("\n")
 				print("Files copied.")
+				print("Done")
 				cmd_str = "sudo chown dib %s/." % (filepath)
 				os.system(cmd_str)
 			
