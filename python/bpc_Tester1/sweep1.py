@@ -104,9 +104,8 @@ try:
 		sds_send(s, b'C3:TRACE OFF\n')
 		sds_send(s, b'C4:TRACE OFF\n')
 		#set Siglent scope trigger
-		sds_send(s, b'C1:TRIG_LEVEL 0.3\n')          # Trigger level
-		sds_send(s, b'TRIG_MODE AUTO\n')            # Auto trigger mode
-				
+		
+					
 		#set Siglent scope horizontal scale
 		sds_send(s, b'MEMORY_SIZE 14K\n')                # Memory depth (record length)
 		sds_send(s, b'TIME_DIV 500e-9\n')                 # Time/div in seconds
@@ -131,6 +130,9 @@ try:
 		#sds_send(s, b'CH4:POS -4\n')
 		
 		sds_send(s, b'BANDWIDTH_LIMIT C1,ON,C2,ON,C4,ON\n')
+		
+		sds_send(s, b'TRIG_MODE AUTO\n')            # Auto trigger mode
+		sds_send(s, b'C1:TRIG_LEVEL 0.3\n')          # Trigger level
 			
 	#wait 10 s then turn function generator outputs off
 	clk = time.time()
