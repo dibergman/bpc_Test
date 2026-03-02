@@ -279,8 +279,8 @@ try:
 			
 	
 	print("")
-	print("Make sure DUT channel is on, verify current, ", end="")
-	print("then turn off channel.")
+	print("Make sure DUT channel is on, and verify current.")
+	print("Turn off channel.")
 	print("Press Enter when ready.")
 	input()
 	print("Acquiring data")
