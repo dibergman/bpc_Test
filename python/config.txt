@@ -1,0 +1,7 @@
+Static IP Address: 192.168.0.15
+MAC Address: 02,00,00,62,02,0F
+1-Wire Sensor Left: 28,00,00,00,00,00,00,00
+1-Wire Sensor Right: 28,00,00,00,00,00,00,00
+HALL sensor gain: 1.02,1.02
+Model.Serial Number: 6202015
+IP Address static(0)/dhcp(1): 0
