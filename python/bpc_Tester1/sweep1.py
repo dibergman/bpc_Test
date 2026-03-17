@@ -132,7 +132,7 @@ try:
 		sds_send(s, b'BANDWIDTH_LIMIT C1,ON,C2,ON,C4,ON\n')
 		
 		sds_send(s, b'TRIG_MODE AUTO\n')            # Auto trigger mode
-		sds_send(s, b'C1:TRIG_LEVEL 0.3\n')          # Trigger level
+		sds_send(s, b'C1:TRIG_LEVEL 3\n')          # Trigger level
 			
 	#wait 10 s then turn function generator outputs off
 	clk = time.time()
