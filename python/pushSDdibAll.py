@@ -32,7 +32,17 @@ lines = data_str.split('\n')
 if len(lines)<7:
 	lines.append("IP Address static(0)/dhcp(1): 0") # if line 7 is missing from SD card, add it
 
-x = input("Enter line number to change (1, 2, 3, 4, or 7): ")
+print("Enter line number to change: ")
+print()
+print("1. Static IP Address")
+print("2. MAC Address")
+print("3. 1-Wire Sensor ID Left")
+print("4. 1-Wire Sensor ID Right")
+print("5. Hall Sensor Gain")
+print("6. Model.Serial Number")
+print("7. IP Address static/dynamic DHCP")
+#x = input("Enter line number to change (1, 2, 3, 4, or 7): ")
+x=input()
 if x == '1':
 	s = input("Static IP Address: ")
 	lines[0] = ("Static IP Address: %s" % s)
@@ -44,7 +54,13 @@ if x == '3':
 	lines[2] = ("1-Wire Sensor Left: %s" % s)
 if x == '4':
 	s = input("1-Wire Sensor Right: ")
-	lines[3] = ("1-Wire Sensor Right: %s" % s)    
+	lines[3] = ("1-Wire Sensor Right: %s" % s)
+if x == '5':
+	s = input("HALL sensor gain: ")
+	lines[4] = ("HALL sensor gain: %s" % s)
+if x == '6':
+	s = input("Model.Serial Number: ")
+	lines[5] = ("Model.Serial Number: %s" % s)    
 if x == '7':
 	s = input("IP Address static(0)/dhcp(1): ")
 	lines[6] = ("IP Address static(0)/dhcp(1): %s" % s)
