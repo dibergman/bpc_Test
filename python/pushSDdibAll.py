@@ -41,6 +41,7 @@ print("4. 1-Wire Sensor ID Right")
 print("5. Hall Sensor Gain")
 print("6. Model.Serial Number")
 print("7. IP Address static/dynamic DHCP")
+print("=> ", end='')
 #x = input("Enter line number to change (1, 2, 3, 4, or 7): ")
 x=input()
 if x == '1':
