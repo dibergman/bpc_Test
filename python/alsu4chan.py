@@ -18,6 +18,7 @@ DirectInh1 = 'Inhibited'
 DirectInh2 = 'Inhibited'
 DirectInh3 = 'Inhibited'
 DirectInh4 = 'Inhibited'
+cmd_format = 1
 
 while True:
 	try:
@@ -36,12 +37,15 @@ while True:
 		print('{0:60}{1:10}'.format("18. Ch2 Reset", "(Reset DO11)") )
 		print('{0:60}{1:10}'.format("19. Ch3 Reset", "(Reset DO12)") )
 		print('{0:60}{1:10}'.format("20. Ch4 Reset", "(Reset DO13)") )
+		print("21. Level" )
+		print("22. Pulse" )
 		print("")
 
 		print("Ch1 = %s, %s" % (DirectInh1, Ch1 ) )
 		print("Ch2 = %s, %s" % (DirectInh2, Ch2 ) )
 		print("Ch3 = %s, %s" % (DirectInh3, Ch3 ) )
 		print("Ch4 = %s, %s" % (DirectInh4, Ch4 ) )
+		print("Command format = %s" % cmd_format ) 
 		
 		print("")
 
@@ -135,6 +139,12 @@ while True:
 			ser.write(b'19')
 		if x == '20':
 			ser.write(b'20')
+		if x == '21':
+			cmd_format = "Level"
+			ser.write(b'21')
+		if x == '22':
+			cmd_format = "Pulse"
+			ser.write(b'22')
 		
 		#print("Command = %s" % x)
 			
